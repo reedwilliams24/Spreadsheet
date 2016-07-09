@@ -1,7 +1,4 @@
 var fs = require('fs');
-// var $ = require('jquery');
-// var $csv = require('jquery-csv');
-
 var csv = require("fast-csv");
 
 var input = [];
@@ -18,11 +15,9 @@ csv
  .fromPath("ex1.csv")
  .on("data", function(data){
      var line = data[0].split('\t');
-    //  console.log(line);
      input.push(line);
  })
  .on("end", function(){
-  //  console.log("done");
    printOutput();
  });
 
@@ -31,31 +26,22 @@ var printOutput = function(){
   input.forEach(function(line){
     var lineResult = [];
     line.forEach(function(cell){
-      // console.log('1->', cell, typeof cell, isNum(cell));
       if (isNum(cell)) cell = parseInt(cell);
       if (cell === '') cell = 0;
-      // console.log('2->', cell, typeof cell, isNum(cell));
       lineResult.push(cell);
     });
     lineNumber += 1;
     result.push(lineResult);
   });
 
-  console.log(result);
   var row = 0;
   var col = 0;
   var rowLength = result.length;
   var colLength = result[0].length;
-  console.log('res', rowLength, colLength);
 
   while (row < rowLength){
     col = 0;
     while (col < colLength){
-      console.log('- 1 -', col, row, rowLength, colLength);
-      console.log('col-row', col, row, rowLength, colLength);
-      console.log('- 1.5 -', result);
-      console.log('- 1.8 -', result[row]);
-      console.log('- 2 -', result[row][col]);
       if (computeCellValue(result[row][col]) === undefined) {
         console.log('ERROR', result[row][col]);
       }
@@ -65,24 +51,7 @@ var printOutput = function(){
     row += 1;
   }
 
-  // var rows = result[0];
-  // for (var row = 0; row < rows.length; row++) {
-  //   var columns = rows[row];
-  //   for (var column = 0; column < columns.length; column++) {
-  //
-  //   }
-  // }
-
-  // var lineNum = 0;
-  // input.forEach(function(line){
-  //   var colNum = 0;
-  //   line.forEach(function(cell){
-  //     colNum+=1;
-  //     if (computeCellValue(cell) === undefined) console.log('ERROR', cell);
-  //     result[lineNum][colNum] = computeCellValue(cell);
-  //   });
-  //   lineNum+=1;
-  // });
+  //TODO OUTPUT TO NEW CSV FILE
   console.log(result);
 };
 
@@ -103,34 +72,11 @@ var computeCellValue = function(cell){
 
   if (commands.length === 2) return '#ERR';
 
-  // if (commands.length <= 2){
-  //   // both are numbers
-  //   if (isNum(commands[0]) && isNum(commands[1])){
-  //     return '#ERR';
-  //   // number first, operator or other second
-  //   } else if (isNum(commands[0])){
-  //     return operate(commands[0], commands[0], commands[1]);
-  //   // operator or other first, number second
-  //   } else if (isNum(commands[1])) {
-  //     // 0 / 0 and 0 <other> 0 are errors
-  //     if (OPERATORS[commands[0]]===undefined || OPERATORS[commands[0]]==='/'){
-  //       return '#ERR';
-  //     // value of second
-  //     } else {
-  //       return parseInt(commands[1]);
-  //     }
-  //   } else {
-  //
-  //   }
-  // }
-
   commands.forEach(function(command){
-    // console.log('c', command);
     if (Object.keys(OPERATORS).indexOf(command) !== -1){
       if (stack.length < 2){
         return '#ERR';
       } else {
-        // console.log('s', stack);
         var cell2 = stack.pop();
         var cell1 = stack.pop();
         if (cell1 === '#ERR' || cell2 === '#ERR') return '#ERR';
@@ -147,7 +93,6 @@ var computeCellValue = function(cell){
 };
 
 var operate = function(cell1, cell2, operator){
-  // console.log(cell1, cell2, operator);
   if (valueIsNaN(parseInt(cell1))){
     cell1 = cellValue(cell1);
   } else {
@@ -175,7 +120,6 @@ var operate = function(cell1, cell2, operator){
 };
 
 var cellValue = function(cell){
-  // console.log(cell);
   if (cell.length < 2) return 0;
 
   var idx = 0;
@@ -193,32 +137,17 @@ var cellValue = function(cell){
   var cellResult =
     result[location[1] - 1][location[0].toLowerCase().charCodeAt(0) - 97];
 
-  var sol;
-
   if (typeof cellResult === 'number'){
     return cellResult;
   } else if (cellResult.split(' ').length === 1){
     if (valueIsNaN(parseInt(cellResult.split(' ')[0][0]))){
-      // console.log('111', cellResult);
-      sol =  computeCellValue(cellResult);
-      // console.log(1, cellResult, sol);
+      return computeCellValue(cellResult);
     } else {
-      sol = parseInt(cellResult);
-      // console.log(2, cellResult, sol);
+      return parseInt(cellResult);
     }
   } else {
-    sol = computeCellValue(cellResult);
-    // console.log(3, cellResult, sol);
+    return computeCellValue(cellResult);
   }
-  return sol;
-  // if (valueIsNaN(parseInt(cellResult))){
-  //   sol = computeCellValue(cellResult);
-  //   console.log(1, cellResult, sol);
-  // } else {
-  //   sol = parseInt(cellResult);
-  //   console.log(2, cellResult, sol);
-  // }
-  // return sol;
 };
 
 var valueIsNaN = function(val) {
