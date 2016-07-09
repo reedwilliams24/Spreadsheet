@@ -11,17 +11,40 @@ var OPERATORS = {
   '*':'*'
 };
 
-csv
- .fromPath("ex1.csv")
- .on("data", function(data){
-     var line = data[0].split('\t');
-     input.push(line);
- })
- .on("end", function(){
-   printOutput();
- });
+var validCSVFile = function(filename) {
+  if (filename.slice(filename.length - 4) !== '.csv') return false;
+  if (filename.length < 'RESULT.csv'.length) return true;
+  if (filename.slice(filename.length - 'RESULT.csv'.length) === 'RESULT.csv'){
+    return false;
+  }
+  return true;
+};
 
-var printOutput = function(){
+var csvFiles = fs.readdirSync('./').filter(function(filename){
+  return validCSVFile(filename);
+});
+
+console.log('Files to be evaluated: ', csvFiles);
+
+csvFiles.forEach(function(filename){
+  var fileInput = [];
+
+  csv
+  .fromPath(filename)
+  .on("data", function(data){
+    var line = data;
+    fileInput.push(line);
+  })
+  .on("end", function(){
+    parseData(filename, fileInput);
+  });
+});
+
+
+var parseData = function(filename, newInput){
+  input = newInput;
+  result = [];
+
   var lineNumber = 1;
   input.forEach(function(line){
     var lineResult = [];
@@ -51,8 +74,11 @@ var printOutput = function(){
     row += 1;
   }
 
-  //TODO OUTPUT TO NEW CSV FILE
-  console.log(result);
+  var fname = filename.split('.')[0] + '-RESULT.csv';
+  csv.writeToStream(fs.createWriteStream(fname), result, {headers: false});
+
+  input = [];
+  result = [];
 };
 
 var computeCellValue = function(cell){
