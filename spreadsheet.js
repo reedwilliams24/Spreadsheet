@@ -1,9 +1,6 @@
 var fs = require('fs');
 var csv = require("fast-csv");
 
-var input = [];
-var result = [];
-
 var OPERATORS = {
   '+':'+',
   '-':'-',
@@ -25,6 +22,9 @@ var csvFiles = fs.readdirSync('./').filter(function(filename){
 });
 
 console.log('Files to be evaluated: ', csvFiles);
+
+var input = [];
+var result = [];
 
 csvFiles.forEach(function(filename){
   var fileInput = [];
@@ -65,9 +65,6 @@ var parseData = function(filename, newInput){
   while (row < rowLength){
     col = 0;
     while (col < colLength){
-      if (computeCellValue(result[row][col]) === undefined) {
-        console.log('ERROR', result[row][col]);
-      }
       result[row][col] = computeCellValue(result[row][col]);
       col += 1;
     }
@@ -76,13 +73,12 @@ var parseData = function(filename, newInput){
 
   var fname = filename.split('.')[0] + '-RESULT.csv';
   csv.writeToStream(fs.createWriteStream(fname), result, {headers: false});
-
-  input = [];
-  result = [];
+  console.log('Finished evaluating: \''+filename+'\' | Saved as \''+fname+'\'');
 };
 
 var computeCellValue = function(cell){
   if (typeof cell === 'number') return cell;
+
   if (cell.length === 1){
     if (isNum(cell[0])){
       return parseInt(cell[0]);
@@ -93,10 +89,10 @@ var computeCellValue = function(cell){
     }
   }
 
-  var stack = [];
   var commands = cell.split(' ');
-
   if (commands.length === 2) return '#ERR';
+
+  var stack = [];
 
   commands.forEach(function(command){
     if (Object.keys(OPERATORS).indexOf(command) !== -1){
@@ -108,27 +104,27 @@ var computeCellValue = function(cell){
         if (cell1 === '#ERR' || cell2 === '#ERR') return '#ERR';
         stack.push(operate(cell1, cell2, command));
       }
-    } else if (valueIsNaN(parseInt(command))){
+    } else if (isNum(command)){
+      stack.push(parseInt(command));
+    } else {
       if (command === '#ERR') return '#ERR';
       stack.push(cellValue(command));
-    } else {
-      stack.push(parseInt(command));
     }
   });
   return stack[0];
 };
 
 var operate = function(cell1, cell2, operator){
-  if (valueIsNaN(parseInt(cell1))){
-    cell1 = cellValue(cell1);
-  } else {
+  if (isNum(cell1)){
     cell1 = parseInt(cell1);
+  } else {
+    cell1 = cellValue(cell1);
   }
 
-  if (valueIsNaN(parseInt(cell2))){
-    cell2 = cellValue(cell2);
-  } else {
+  if (isNum(cell2)){
     cell2 = parseInt(cell2);
+  } else {
+    cell2 = cellValue(cell2);
   }
 
   switch (operator) {
@@ -151,33 +147,19 @@ var cellValue = function(cell){
   var idx = 0;
   var cellChars = cell.split('');
 
+  // find first digit
   for (var i = 0; i < cellChars.length; i++) {
-    if (!valueIsNaN(parseInt(cellChars[i]))){
-      idx = i;
-      break;
-    }
+    if (isNum(cellChars[i])) { idx = i; break; }
   }
 
+  // [{LETTER}, {NUMBER}]
   var location = [cell.slice(0,idx), parseInt(cell.slice(idx))];
 
+  // [{ROW_NUMBER}, {COLUMN_NUMBER}]
   var cellResult =
     result[location[1] - 1][location[0].toLowerCase().charCodeAt(0) - 97];
 
-  if (typeof cellResult === 'number'){
-    return cellResult;
-  } else if (cellResult.split(' ').length === 1){
-    if (valueIsNaN(parseInt(cellResult.split(' ')[0][0]))){
-      return computeCellValue(cellResult);
-    } else {
-      return parseInt(cellResult);
-    }
-  } else {
-    return computeCellValue(cellResult);
-  }
-};
-
-var valueIsNaN = function(val) {
-  return val !== val;
+  return computeCellValue(cellResult);
 };
 
 var isNum = function(val) {
@@ -197,6 +179,7 @@ var isNum = function(val) {
   return true;
 };
 
+// isNum Tests
 var isNumTest1 = '235';
 if (isNum(isNumTest1) === false) console.log('ERROR - isNumTest 1');
 var isNumTest2 = '2x5';
