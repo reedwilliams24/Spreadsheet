@@ -7,8 +7,6 @@ This program parses a spreadsheet-like CSV file and evaluates each cell by these
   4. Expressions may include the basic arithmetic operators +, -, *, /.
 
 Ex1.csv <br/>
-<img src="https://raw.githubusercontent.com/reedwilliams24/Spreadsheet/master/docs/Ex1.png" width='679.2' height='138'><br/>
+<img src="https://raw.githubusercontent.com/reedwilliams24/Spreadsheet/master/docs/Ex1.png" width='679.2' height='138'><br/><br/>
 Ex1-RESULT.csv <br/>
 <img src="https://raw.githubusercontent.com/reedwilliams24/Spreadsheet/master/docs/Ex1-RESULT.png" width='679.2' height='138'><br/>
-
-1132 x 230
