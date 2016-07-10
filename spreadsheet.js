@@ -17,7 +17,7 @@ var validCSVFile = function(filename) {
   return true;
 };
 
-var csvFiles = fs.readdirSync('./').filter(function(filename){
+var csvFiles = fs.readdirSync('./input_files/').filter(function(filename){
   return validCSVFile(filename);
 });
 
@@ -30,7 +30,7 @@ csvFiles.forEach(function(filename){
   var fileInput = [];
 
   csv
-  .fromPath(filename)
+  .fromPath('./input_files/' + filename)
   .on("data", function(data){
     var line = data;
     fileInput.push(line);
@@ -71,7 +71,7 @@ var parseData = function(filename, newInput){
     row += 1;
   }
 
-  var fname = filename.split('.')[0] + '-RESULT.csv';
+  var fname = './output_files/' + filename.split('.')[0] + '-RESULT.csv';
   csv.writeToStream(fs.createWriteStream(fname), result, {headers: false});
   console.log('Finished evaluating: \''+filename+'\' | Saved as \''+fname+'\'');
 };
