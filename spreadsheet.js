@@ -78,6 +78,7 @@ var parseData = function(filename, newInput){
 
 var computeCellValue = function(cell){
   if (typeof cell === 'number') return cell;
+  if (cell === '#ERR') return '#ERR';
 
   if (cell.length === 1){
     if (isNum(cell[0])){
@@ -159,6 +160,9 @@ var cellValue = function(cell){
   var cellResult =
     result[location[1] - 1][location[0].toLowerCase().charCodeAt(0) - 97];
 
+  // cell references itself
+  if (cell === cellResult) return '#ERR';
+
   return computeCellValue(cellResult);
 };
 
@@ -192,3 +196,5 @@ var isNumTest5 = 'a2';
 if (isNum(isNumTest5) === true) console.log('ERROR - isNumTest 5');
 var isNumTest6 = '';
 if (isNum(isNumTest6) === true) console.log('ERROR - isNumTest 6');
+var isNumTest7 = '#ERR';
+if (isNum(isNumTest7) === true) console.log('ERROR - isNumTest 7');
