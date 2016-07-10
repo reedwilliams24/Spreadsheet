@@ -64,8 +64,6 @@ var parseData = function(filename, newInput){
   var col = 0;
   rowNumber = result.length;
   colNumber = result[0].length;
-  // var rowLength = result.length;
-  // var colLength = result[0].length;
 
   while (row < rowNumber){
     col = 0;
