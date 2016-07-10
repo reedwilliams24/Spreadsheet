@@ -25,6 +25,7 @@ console.log('Files to be evaluated: ', csvFiles);
 
 var input = [];
 var result = [];
+var callstack = 0;
 
 csvFiles.forEach(function(filename){
   var fileInput = [];
@@ -65,6 +66,7 @@ var parseData = function(filename, newInput){
   while (row < rowLength){
     col = 0;
     while (col < colLength){
+      callstack = 0;
       result[row][col] = computeCellValue(result[row][col]);
       col += 1;
     }
@@ -77,6 +79,10 @@ var parseData = function(filename, newInput){
 };
 
 var computeCellValue = function(cell){
+  // circular reference error
+  callstack += 1;
+  if (callstack > 250) return '#ERR';
+
   if (typeof cell === 'number') return cell;
   if (cell === '#ERR') return '#ERR';
 
@@ -102,29 +108,35 @@ var computeCellValue = function(cell){
       } else {
         var cell2 = stack.pop();
         var cell1 = stack.pop();
-        if (cell1 === '#ERR' || cell2 === '#ERR') return '#ERR';
-        stack.push(operate(cell1, cell2, command));
+        if (cell1 === '#ERR' || cell2 === '#ERR') {
+          stack.push('#ERR');
+        } else {
+          stack.push(operate(cell1, cell2, command));
+        }
       }
     } else if (isNum(command)){
       stack.push(parseInt(command));
     } else {
-      if (command === '#ERR') return '#ERR';
-      stack.push(cellValue(command));
+      if (command === '#ERR') {
+        stack.push('#ERR');
+      } else {
+        stack.push(cellValue(command));
+      }
     }
   });
   return stack[0];
 };
 
 var operate = function(cell1, cell2, operator){
-  if (isNum(cell1)){
+  if (isNum(cell1) && typeof cell1 !== 'number'){
     cell1 = parseInt(cell1);
-  } else {
+  } else if (!isNum(cell1)){
     cell1 = cellValue(cell1);
   }
 
-  if (isNum(cell2)){
+  if (isNum(cell2) && typeof cell2 !== 'number'){
     cell2 = parseInt(cell2);
-  } else {
+  } else if (!isNum(cell2)) {
     cell2 = cellValue(cell2);
   }
 
