@@ -26,6 +26,8 @@ console.log('Files to be evaluated: ', csvFiles);
 var input = [];
 var result = [];
 var callstack = 0;
+var rowNumber = 0;
+var colNumber = 0;
 
 csvFiles.forEach(function(filename){
   var fileInput = [];
@@ -60,12 +62,14 @@ var parseData = function(filename, newInput){
 
   var row = 0;
   var col = 0;
-  var rowLength = result.length;
-  var colLength = result[0].length;
+  rowNumber = result.length;
+  colNumber = result[0].length;
+  // var rowLength = result.length;
+  // var colLength = result[0].length;
 
-  while (row < rowLength){
+  while (row < rowNumber){
     col = 0;
-    while (col < colLength){
+    while (col < colNumber){
       callstack = 0;
       result[row][col] = computeCellValue(result[row][col]);
       col += 1;
@@ -169,8 +173,10 @@ var cellValue = function(cell){
   var location = [cell.slice(0,idx), parseInt(cell.slice(idx))];
 
   // [{ROW_NUMBER}, {COLUMN_NUMBER}]
-  var cellResult =
-    result[location[1] - 1][location[0].toLowerCase().charCodeAt(0) - 97];
+  var row = location[1] - 1;
+  var column = location[0].toLowerCase().charCodeAt(0) - 97;
+  if (row > rowNumber - 1 || column > colNumber - 1) return '#ERR';
+  var cellResult = result[row][column];
 
   // cell references itself
   if (cell === cellResult) return '#ERR';
